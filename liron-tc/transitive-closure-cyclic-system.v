@@ -244,9 +244,9 @@ Section SomeProofsWithCycles.
     Qed.
 
     
-    Lemma frame_property s0 s u : ax s0 -> tc' TR s0 s ->
-                                  n s u = n s0 u \/
-                                  tc (~n s0) (n s0 u) (i s).
+    Lemma frame_property_tcTR_n s0 s u : ax s0 -> tc' TR s0 s ->
+                                         n s u = n s0 u \/
+                                         tc (~n s0) (n s0 u) (i s).
     Proof.      
       assert (sq0 : forall s s0, ax s0 -> i s <> null ->
                             ~tc (~n s0) (n s0 (i s)) (i s)).
@@ -316,7 +316,7 @@ Section SomeProofsWithCycles.
         - constructor.
         - apply tc_step with (u:=i s2).
           + destruct H as [A1 [A2 [A3 A4]]]. rewrite A2.
-            symmetry; edestruct frame_property.
+            symmetry; edestruct frame_property_tcTR_n.
             * eassumption.
             * apply tc_tc'. eassumption.
             *  eassumption.
@@ -329,9 +329,9 @@ Section SomeProofsWithCycles.
       - assumption.
     Qed.
 
-    Lemma frame_property' s0 s u : ax s0 -> tc' TR s0 s ->
-                                   n s u = n s0 u \/
-                                   tc (~n s0) (i s0) u.
+    Lemma frame_property_tcTR_n_i0 s0 s u : ax s0 -> tc' TR s0 s ->
+                                            n s u = n s0 u \/
+                                            tc (~n s0) (i s0) u.
     Proof.
       revert s u. fix f 4.
       intros s u ax0 s0s.
@@ -345,7 +345,7 @@ Section SomeProofsWithCycles.
     Qed.
 
     
-    Lemma frame_property_star s0 s1 u : ax s0 -> TR s0 s1 ->
+    Lemma frame_property_TR_tcn s0 s1 u : ax s0 -> TR s0 s1 ->
                             tc' (~n s0) (i s1) u <-> tc' (~n s1) (i s1) u.
     Proof.
       intros ax0 s0s1.
@@ -365,7 +365,7 @@ Section SomeProofsWithCycles.
       intros ax0 s0s1 i1i0.
       assert (tc (~n s0) (i s1) (i s0)).
       {
-        apply tc'_tc. apply frame_property_star; try assumption.
+        apply tc'_tc. apply frame_property_TR_tcn; try assumption.
         apply tc_tc'; assumption.
       }
       
@@ -413,7 +413,7 @@ Section SomeProofsWithCycles.
       destruct s1s as [|s1 s2 s s1s2].
       - contradiction v_not_null. destruct s0s1 as [A1 [A2 [A3 A4]]].
         congruence.
-      - edestruct frame_property' with (s0:=s2) (s:=s).
+      - edestruct frame_property_tcTR_n_i0 with (s0:=s2) (s:=s).
         + apply ax0; repeat ( econstructor; try eassumption ).
         + apply tc_tc'. assumption.
         + rewrite H.
@@ -427,7 +427,8 @@ Section SomeProofsWithCycles.
           * destruct s0s1 as [A1 [A2 A3]]. congruence.
     Qed.
 
-    Lemma sad s u v : ax s -> n s u = null -> tc (~n s) u v -> v = u \/ v = null.
+    Lemma sad s u v : ax s -> n s u = null -> tc (~n s) u v
+                      -> v = u \/ v = null.
     Proof.
       destruct 3.
       - left; reflexivity.
@@ -463,7 +464,7 @@ Section SomeProofsWithCycles.
           econstructor.
           apply tc_tc'. apply f with (s0:=s1); try eassumption.
           * intros s' s1s'. apply ax0. econstructor; eassumption.
-          * { apply tc'_tc. apply frame_property_star with (s0:=s0).
+          * { apply tc'_tc. apply frame_property_TR_tcn with (s0:=s0).
               - apply ax0; constructor.
               - assumption.
               - destruct s0s1 as [A1 [A2 [A3 A4]]]. apply tc_tc'. congruence.
@@ -475,8 +476,8 @@ Section SomeProofsWithCycles.
             }
     Qed.
 
-    (* This is a very slight generalization of frame_property_star *)
-    Lemma frame_property_star_more s0 s1 u v : ax s0 -> TR s0 s1 ->
+    (* This is a very slight generalization of frame_property_TR_tcn *)
+    Lemma frame_property_TR_tcn_ex s0 s1 u v : ax s0 -> TR s0 s1 ->
                                                tc (~n s0) (i s1) u ->
                                                tc' (~n s0) u v <-> tc' (~n s1) u v.
     Proof.
@@ -507,12 +508,12 @@ Section SomeProofsWithCycles.
       intros ax0 s0s1 s1s IH i0u uv v_not_null i_null.
       apply IH.
       - apply tc'_tc.
-        eapply frame_property_star with (s0:=s0).
+        eapply frame_property_TR_tcn with (s0:=s0).
         + apply ax0; constructor.
         + assumption.
         + destruct s0s1 as [? [? [? ?]]]. apply tc_tc'. congruence.
       - apply tc'_tc.
-        eapply frame_property_star_more with (s0:=s0).
+        eapply frame_property_TR_tcn_ex with (s0:=s0).
         + apply ax0; constructor.
         + assumption.
         + destruct s0s1 as [? [? [? ?]]]. congruence.
